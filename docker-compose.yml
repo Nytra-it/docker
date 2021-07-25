@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:12.4
+    restart: always
+    expose:
+      - "5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=dbname #Datenbank Namen anpassen / Change DB name
+      - POSTGRES_USER=dbuser #Datenbank User anpassen / Change DB user
+      - POSTGRES_PASSWORD=dbpassword #Datenbank Passwort anpassen / Change DB passwort
+    networks:
+      - logchimp_network
+
+  feedback:
+    image: ghcr.io/logchimp/logchimp
+    restart: always
+    ports:
+      - "8080:8080"
+      - "3000:3000"
+    environment:
+      - PG_HOST=db
+      - PG_USER=dbuser #Datenbank User anpassen / Change DB user
+      - PG_DATABASE=dbname #Datenbank Namen anpassen / Change DB name
+      - PG_PASSWORD=dbpassword #Datenbank Passwort anpassen / Change DB passwort
+      - PG_PORT=5432
+      - SECRET_KEY=123SecretHash! #Secret Hash vergeben
+    depends_on:
+      - db
+    networks:
+      - logchimp_network
+
+
+networks:
+  logchimp_network:
+
+
+volumes:
+  pgdata:
